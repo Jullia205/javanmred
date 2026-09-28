@@ -1,0 +1,42 @@
+[
+  {
+    "srate": 21600.0,
+    "nsamp": 70200,
+    "nskip": 0,
+    "ppg": "cpmg"
+  },
+  {
+    "ftmin": 0.0,
+    "ftmax": 0.0,
+    "ffmin": 0.0,
+    "ffmax": 0.0,
+    "ftdisp": "lin",
+    "wdw": "none",
+    "wdwr": 1.0,
+    "fc": 0.0,
+    "disp": [
+      0
+    ],
+    "digfmin": 1500.0,
+    "digfmax": 3500.0,
+    "intmin": 2550.0,
+    "intmax": 2850.0,
+    "soff": 0.25,
+    "slen": 0.25,
+    "autosplit": "false"
+  },
+  {
+    "inc": [
+      0.25
+    ],
+    "n": [
+      12
+    ]
+  },
+  {},
+  {
+    "ninchann": 1,
+    "sratex": 21600.0,
+    "nsampx": 70200
+  }
+]
