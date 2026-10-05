@@ -55,4 +55,7 @@ public final class Experiment {
     public List<TimeSignal> getScans() {
         return this.scans;
     }
+
+    public String getName() {
+    }
 }

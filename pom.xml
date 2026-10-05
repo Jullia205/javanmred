@@ -16,36 +16,42 @@
         <junit.version>5.10.2</junit.version>
     </properties>
 
-    <!--
-      NOTA (leia antes de rodar `mvn install`):
-      O parser de JSON deste módulo é implementado à mão (pacote io.json),
-      sem nenhuma dependência externa, exatamente para que o módulo de
-      leitura compile e rode sem precisar baixar nada da internet.
-
-      A dependência do Jackson abaixo é OPCIONAL e fica comentada.
-      Se o seu grupo preferir usar Jackson (uma das opções sugeridas no
-      roteiro, Etapa 14) em vez do parser manual, descomente as linhas
-      abaixo e troque as chamadas de ParameterReader para usar
-      ObjectMapper/TypeReference no lugar de MinimalJsonParser.
-    -->
-    <!--
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.17.0</version>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>17.0.2</version>
         </dependency>
-    </dependencies>
-    -->
-
-    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>17.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.wendykierp</groupId>
+            <artifactId>JTransforms</artifactId>
+            <version>3.1</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>uk.me.berndporr</groupId>
+            <artifactId>iirj</artifactId>
+            <version>1.7</version>
+        </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>
