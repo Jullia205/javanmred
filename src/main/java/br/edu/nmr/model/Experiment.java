@@ -56,6 +56,4 @@ public final class Experiment {
         return this.scans;
     }
 
-    public String getName() {
-    }
 }
