@@ -32,7 +32,7 @@ public class AppUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Plataforma de Análise RMN - Equipa 03");
+        primaryStage.setTitle("Plataforma de Análise RMN - Equipe 03");
 
         // 1. Área Central: Gráfico nativo do JavaFX
         xAxis = new NumberAxis();
@@ -94,20 +94,21 @@ public class AppUI extends Application {
                     } else if (tipoSelecionado.equals("Relaxação T2 (CPMG)")) {
                         System.out.println(">> INICIANDO T2 NA THREAD DE BACKGROUND...");
 
-                        double tau = currentExperiment.getParameters().preAcquisition().getDouble("tau", 0.0);
-                        // Tenta obter o número de ecos. Se não encontrar, assume 1.
-                        int numEcos = currentExperiment.getParameters().acquisition().getInt("neco", 1);
-                        double tempoEco = 2.0 * tau;
+                        // 1. LER OS PARÂMETROS CORRETOS A PARTIR DO BLOCO "pinc"
+                        java.util.List<?> incList = (java.util.List<?>) currentExperiment.getParameters().increment().raw().get("inc");
+                        java.util.List<?> nList = (java.util.List<?>) currentExperiment.getParameters().increment().raw().get("n");
+
+                        double tempoEco = ((Number) incList.get(0)).doubleValue();
+                        int numEcos = ((Number) nList.get(0)).intValue();
 
                         br.edu.nmr.model.TimeSignal scanUnico = currentExperiment.getScans().get(0);
                         double[] amplitudes = scanUnico.channel(0);
 
-                        if (numEcos <= 0) numEcos = 1; // Prevenção de erro matemático
+                        // Agora sim: 70200 pontos / 12 ecos = 5850 amostras por eco
                         int amostrasPorEco = amplitudes.length / numEcos;
 
-                        // 1. IMPRESSÃO DE DIAGNÓSTICO DE DADOS
                         System.out.println(">> Total de amostras no sinal: " + amplitudes.length);
-                        System.out.println(">> Número de ecos (neco): " + numEcos);
+                        System.out.println(">> Número de ecos extraídos (n): " + numEcos);
                         System.out.println(">> Amostras recortadas por eco: " + amostrasPorEco);
 
                         double[] xValues = new double[numEcos];
@@ -116,22 +117,20 @@ public class AppUI extends Application {
                         br.edu.nmr.signal.ButterworthFilter filter = new br.edu.nmr.signal.ButterworthFilter(currentExperiment.getParameters());
                         br.edu.nmr.signal.FourierTransform fft = new br.edu.nmr.signal.FourierTransform();
                         br.edu.nmr.analysis.PeakIntegrator integrator = new br.edu.nmr.analysis.PeakIntegrator();
+
+                        // 2. TEMPO DE AMOSTRAGEM CORRETO (Evita o erro ArithmeticException do Nyquist)
                         double dwellTime = scanUnico.dx();
 
                         for (int i = 0; i < numEcos; i++) {
-                            // 2. MONITORAMENTO DE LOOP E MEMÓRIA
-                            if (i % 500 == 0 || i == 0) {
-                                long memoriaLivreMB = Runtime.getRuntime().freeMemory() / 1024 / 1024;
-                                System.out.println(">> A processar eco " + i + " de " + numEcos + " | Memória RAM livre: " + memoriaLivreMB + " MB");
-                            }
+                            System.out.println(">> A processar eco " + (i + 1) + " de " + numEcos + "...");
 
                             xValues[i] = (i + 1) * tempoEco;
                             double[] ecoAmplitudes = new double[amostrasPorEco];
                             System.arraycopy(amplitudes, i * amostrasPorEco, ecoAmplitudes, 0, amostrasPorEco);
 
+                            // Cria o eco virtual com o dwellTime correto calculado pela sua classe (1.0 / 21600)
                             br.edu.nmr.model.TimeSignal ecoVirtual = new br.edu.nmr.model.TimeSignal(new double[][]{ecoAmplitudes}, dwellTime, 0.0);
 
-                            // Processamento central
                             br.edu.nmr.model.TimeSignal filtered = filter.apply(ecoVirtual);
                             br.edu.nmr.signal.Spectrum spectrum = fft.transform(filtered);
                             yValues[i] = integrator.integrate(spectrum, currentExperiment.getParameters());
@@ -140,20 +139,41 @@ public class AppUI extends Application {
                         System.out.println(">> Início do Ajuste de Curva (Fit)...");
                         br.edu.nmr.analysis.RelaxationFit fitter = new br.edu.nmr.analysis.RelaxationFit();
                         double[] otimizados = fitter.fit(xValues, yValues, yValues[0], 10.0, 0.0);
-                        System.out.println(">> Ajuste de Curva concluído com sucesso!");
 
                         javafx.application.Platform.runLater(() -> {
                             statusLabel.setText(String.format("T2 Concluído!\nTaxa R2 = %.4f s⁻¹\nTempo T2 = %.4f s", otimizados[1], (1.0 / otimizados[1])));
                             plotFitResult(xValues, yValues, otimizados);
                             btnProcess.setDisable(false);
-                            System.out.println(">> Gráfico enviado para o ecrã!");
+                            System.out.println(">> Gráfico enviado para o ecrã com sucesso!");
                         });
 
 
-                    } else {
+                    } else if (tipoSelecionado.equals("Difusão")) {
+                        System.out.println(">> INICIANDO DIFUSÃO NA THREAD DE BACKGROUND...");
+
+                        java.util.List<?> incList = (java.util.List<?>) currentExperiment.getParameters().increment().raw().get("inc");
+                        double stepX = ((Number) incList.get(0)).doubleValue();
+                        double startX = currentExperiment.getParameters().preAcquisition().getDouble("g0", 0.0);
+
+                        br.edu.nmr.service.BatchProcessor batch = new br.edu.nmr.service.BatchProcessor(currentExperiment);
+                        br.edu.nmr.model.IntegratedSeries series = batch.processAll(currentExperiment, startX, stepX);
+
+                        // O 'bigDelta' (Tempo de difusão) é extraído do tau (fallback 0.05s se não encontrar)
+                        double bigDelta = currentExperiment.getParameters().preAcquisition().getDouble("tau", 0.05);
+
+                        br.edu.nmr.analysis.DiffusionFit fitter = new br.edu.nmr.analysis.DiffusionFit();
+
+                        // Argumentos: (X, Y, bigDelta, guessA, guessB)
+                        // A amplitude (guessA) é estimada pelo 1º ponto (Y[0])
+                        // O coeficiente D (guessB) para fluidos costuma ser muito pequeno, mas no ajuste usa-se 1e9 ou 1.0 como chute seguro
+                        double[] otimizados = fitter.fit(series.getXValues(), series.getYValues(), bigDelta, series.getYValues()[0], 1.0);
+
                         javafx.application.Platform.runLater(() -> {
-                            statusLabel.setText("Aguardando implementação da Difusão.");
+                            // O coeficiente é pequeno, então formatamos em notação científica (%e)
+                            statusLabel.setText(String.format("Difusão Concluída!\nCoef. D = %.4e", otimizados[1]));
+                            plotFitResult(series.getXValues(), series.getYValues(), otimizados);
                             btnProcess.setDisable(false);
+                            System.out.println(">> Gráfico enviado para a tela com sucesso!");
                         });
                     }
 
@@ -284,33 +304,50 @@ public class AppUI extends Application {
     /**
      * Plota os pontos experimentais (integrais) e a linha de tendência (curva ajustada).
      */
+
+    /**
+     * Plota os pontos experimentais e a linha de tendência.
+     * Identifica automaticamente se é Relaxação (3 params) ou Difusão (2 params).
+     */
     private void plotFitResult(double[] x, double[] y, double[] params) {
         chart.getData().clear();
 
-        xAxis.setLabel("Tempo Variado (s)");
+        xAxis.setLabel("Tempo / Duração do Gradiente (s)");
         yAxis.setLabel("Área Integrada do Pico");
 
         XYChart.Series<Number, Number> scatter = new XYChart.Series<>();
         scatter.setName("Dados Experimentais");
 
-        // --- Decimação para evitar travamento com milhares de ecos do CPMG ---
         int maxPointsToPlot = 1000;
         int step = Math.max(1, x.length / maxPointsToPlot);
-
         for (int i = 0; i < x.length; i += step) {
             scatter.getData().add(new XYChart.Data<>(x[i], y[i]));
         }
 
         XYChart.Series<Number, Number> line = new XYChart.Series<>();
-        line.setName("Ajuste (Fit Exponencial)");
+        line.setName("Ajuste da Curva");
 
-        // A linha de ajuste precisa apenas de uns 200 pontos para parecer suave
         double minX = x[0];
         double maxX = x[x.length - 1];
         double stepLine = (maxX - minX) / 200.0;
 
+        // Se for Difusão, precisamos do Delta grande (bigDelta), normalmente no parâmetro 'tau'
+        double bigDelta = 0.0;
+        if (currentExperiment != null && params.length == 2) {
+            bigDelta = currentExperiment.getParameters().preAcquisition().getDouble("tau", 0.05);
+        }
+
         for (double currentX = minX; currentX <= maxX; currentX += stepLine) {
-            double fitY = params[0] * Math.exp(-params[1] * currentX) + params[2];
+            double fitY = 0.0;
+
+            if (params.length == 3) {
+                // Equação de Relaxação T1 / T2
+                fitY = params[0] * Math.exp(-params[1] * currentX) + params[2];
+            } else if (params.length == 2) {
+                // Equação de Difusão (Stejskal-Tanner)
+                fitY = params[0] * Math.exp(-params[1] * (currentX * currentX) * (bigDelta - currentX / 3.0));
+            }
+
             line.getData().add(new XYChart.Data<>(currentX, fitY));
         }
 
