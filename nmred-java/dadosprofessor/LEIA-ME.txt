@@ -1,0 +1,50 @@
+EQUIPE 03 - DADOS DE REFERENCIA PARA RMN / PYTHON -> JAVA
+
+ATENCAO
+Estes arquivos sao dados sinteticos de referencia, preparados para reproduzir a estrutura
+JSON + binario float64 esperada pelo codigo publico associado ao artigo de Zhang et al.
+Eles NAO sao os dados experimentais brutos originais dos autores.
+
+OBJETIVO
+Permitir que todos os alunos tenham um conjunto padronizado de arquivos para:
+1. testar a leitura dos dados;
+2. executar as rotinas Python;
+3. registrar dimensoes, metadados e parametros;
+4. posteriormente reimplementar e validar a leitura/processamento em Java.
+
+ESTRUTURA
+- dados/T1/T1_referencia_sintetica.json
+- dados/T1/T1_referencia_sintetica.bin
+- dados/T2/T2_referencia_sintetica.json
+- dados/T2/T2_referencia_sintetica.bin
+- dados/Difusao/Difusao_referencia_sintetica.json
+- dados/Difusao/Difusao_referencia_sintetica.bin
+- scripts/01_verificar_dados.py
+- scripts/02_visualizar_dados.py
+- scripts/03_teste_t1_completo.py
+- scripts/04_exemplo_pynmred.py
+- requirements.txt
+
+FORMATO DOS BINARIOS
+IEEE-754 float64 little-endian. Em NumPy: dtype='<f8'.
+
+PRIMEIRO TESTE
+Abra um terminal na pasta do pacote e execute:
+    python -m pip install -r requirements.txt
+    python scripts/01_verificar_dados.py
+
+Se aparecer "VERIFICACAO CONCLUIDA", os arquivos foram lidos corretamente.
+
+SEGUNDO TESTE
+    python scripts/02_visualizar_dados.py
+
+As imagens serao gravadas em "saidas".
+
+TESTE T1
+    python scripts/03_teste_t1_completo.py
+
+O valor recuperado deve ficar proximo de R1 = 0,39 s^-1, com pequenas diferencas numericas.
+
+USO COM PYNMRED
+Edite scripts/04_exemplo_pynmred.py e informe a pasta onde o repositorio pynmred foi
+baixado/clonado. O nome-base deve ser informado sem as extensoes .json/.bin.

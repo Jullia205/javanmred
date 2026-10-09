@@ -1,0 +1,41 @@
+[
+  {
+    "srate": 21600.0,
+    "nsamp": 10000,
+    "nskip": 0,
+    "ppg": "t1"
+  },
+  {
+    "ftmin": 0.0,
+    "ftmax": 0.0,
+    "ffmin": 0.0,
+    "ffmax": 0.0,
+    "ftdisp": "lin",
+    "wdw": "none",
+    "wdwr": 1.0,
+    "fc": 0.0,
+    "disp": [
+      0
+    ],
+    "digfmin": 2000.0,
+    "digfmax": 3500.0,
+    "intmin": 2550.0,
+    "intmax": 2850.0
+  },
+  {
+    "inc": [
+      1.0
+    ],
+    "n": [
+      11
+    ]
+  },
+  {
+    "poltime": 0.0
+  },
+  {
+    "ninchann": 1,
+    "sratex": 21600.0,
+    "nsampx": 10000
+  }
+]

@@ -11,7 +11,7 @@ import java.util.Map;
  * pstat) é um dict comum e o código usa muito o idioma
  * {@code dict.get('chave', valor_padrao)}. Esta classe existe só para
  * reproduzir esse mesmo idioma em Java de forma segura (sem instanceof
- * espalhado pelo código todo, sem NullPointerException surpresa).</p>
+ * espalhado pelo código todo,</p>
  *
  * <p>Os parâmetros variam de pulso a pulso (cpmg, diff, etc. têm campos
  * diferentes), então propositalmente NÃO viraram um POJO fortemente
