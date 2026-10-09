@@ -52,17 +52,14 @@ public final class TimeSignal {
         return x0;
     }
 
-    /** Duração total do traço, em segundos. */
     public double durationSeconds() {
         return numSamples() * dx;
     }
 
-    /** Amostras cruas do canal informado (cópia defensiva — não expõe o array interno). */
     public double[] channel(int index) {
         return samples[index].clone();
     }
 
-    /** Vetor do eixo do tempo, em segundos, do mesmo tamanho de channel(). */
     public double[] timeAxis() {
         int n = numSamples();
         double[] t = new double[n];
@@ -72,7 +69,6 @@ public final class TimeSignal {
         return t;
     }
 
-    /** Converte um instante em tempo (s) para o índice de amostra mais próximo, com clamp nos limites. */
     public int timeToIndex(double t) {
         int i = (int) Math.round((t - x0) / dx);
         if (i < 0) return 0;
@@ -80,10 +76,6 @@ public final class TimeSignal {
         return i;
     }
 
-    /**
-     * Conta valores não finitos (NaN / Infinity) em todos os canais.
-     * Útil na validação de leitura (Etapa 7 do roteiro).
-     */
     public long countNonFiniteValues() {
         long count = 0;
         for (double[] channel : samples) {

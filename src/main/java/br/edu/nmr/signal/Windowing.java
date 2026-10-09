@@ -5,21 +5,12 @@ import br.edu.nmr.model.TimeSignal;
 
 public class Windowing {
 
-    /**
-     * Extrai a janela temporal do sinal com base nos parâmetros 'ftmin' e 'ftmax'.
-     * Equivalente ao recorte de array antes da FFT no Python.
-     *
-     * @param inputSignal O sinal no tempo (pode ser o bruto ou o já filtrado)
-     * @param params Parâmetros do experimento contendo a seção 'pproc'
-     * @return Um novo TimeSignal contendo apenas a região recortada
-     */
     public static TimeSignal extractEcho(TimeSignal inputSignal, ExperimentParameters params) {
 
         // 1. Lemos os parâmetros de tempo mínimo e máximo (em segundos)
         double tMin = params.processing().getDouble("ftmin", 0.0);
         double tMax = params.processing().getDouble("ftmax", 0.0);
 
-        // No Python original, ftmax = 0 significa "usar até o final do dado"
         if (tMax <= 0.0) {
             tMax = inputSignal.x0() + inputSignal.durationSeconds();
         }

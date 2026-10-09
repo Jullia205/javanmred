@@ -39,11 +39,6 @@ public final class ExperimentParameters {
     public ParamMap preAcquisition() { return preAcquisition; }
     public ParamMap status() { return status; }
 
-    /**
-     * Taxa de amostragem efetiva, replicando expbase.getsrate():
-     * usa pstat['sratex'] se existir (taxa real medida durante a aquisição),
-     * senão cai para p['srate'] (taxa nominal pedida).
-     */
     public double effectiveSampleRate() {
         if (status.has("sratex")) {
             return status.requireDouble("sratex");

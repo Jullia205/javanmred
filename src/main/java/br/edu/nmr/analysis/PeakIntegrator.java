@@ -15,7 +15,6 @@ public class PeakIntegrator {
     public double integrate(Spectrum spectrum, ExperimentParameters params) {
 
         // 1. Obter os limites de integração escolhidos (em Hz) do JSON
-        // Utilizamos valores de fallback padrão caso não existam
         double fMin = params.processing().getDouble("intmin", 2400.0);
         double fMax = params.processing().getDouble("intmax", 2850.0);
 
@@ -38,12 +37,7 @@ public class PeakIntegrator {
         }
 
         // 3. Cumprimento da Etapa 10 do Roteiro:
-        // A integral com unidade física seria a soma multiplicada pela base (Delta f)
         double physicalIntegral = sum * deltaF;
-
-        // Nota: O método devolve a "sum" simples para garantir que a curva
-        // gerada nesta plataforma Java bata valor a valor com o algoritmo original em Python.
-        // O valor physicalIntegral pode ser exposto caso a equipa queira adicionar isso à interface gráfica.
 
         return sum;
     }

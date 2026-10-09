@@ -104,7 +104,6 @@ public class AppUI extends Application {
                         br.edu.nmr.model.TimeSignal scanUnico = currentExperiment.getScans().get(0);
                         double[] amplitudes = scanUnico.channel(0);
 
-                        // Agora sim: 70200 pontos / 12 ecos = 5850 amostras por eco
                         int amostrasPorEco = amplitudes.length / numEcos;
 
                         System.out.println(">> Total de amostras no sinal: " + amplitudes.length);
@@ -128,7 +127,6 @@ public class AppUI extends Application {
                             double[] ecoAmplitudes = new double[amostrasPorEco];
                             System.arraycopy(amplitudes, i * amostrasPorEco, ecoAmplitudes, 0, amostrasPorEco);
 
-                            // Cria o eco virtual com o dwellTime correto calculado pela sua classe (1.0 / 21600)
                             br.edu.nmr.model.TimeSignal ecoVirtual = new br.edu.nmr.model.TimeSignal(new double[][]{ecoAmplitudes}, dwellTime, 0.0);
 
                             br.edu.nmr.model.TimeSignal filtered = filter.apply(ecoVirtual);
@@ -158,18 +156,13 @@ public class AppUI extends Application {
                         br.edu.nmr.service.BatchProcessor batch = new br.edu.nmr.service.BatchProcessor(currentExperiment);
                         br.edu.nmr.model.IntegratedSeries series = batch.processAll(currentExperiment, startX, stepX);
 
-                        // O 'bigDelta' (Tempo de difusão) é extraído do tau (fallback 0.05s se não encontrar)
                         double bigDelta = currentExperiment.getParameters().preAcquisition().getDouble("tau", 0.05);
 
                         br.edu.nmr.analysis.DiffusionFit fitter = new br.edu.nmr.analysis.DiffusionFit();
 
-                        // Argumentos: (X, Y, bigDelta, guessA, guessB)
-                        // A amplitude (guessA) é estimada pelo 1º ponto (Y[0])
-                        // O coeficiente D (guessB) para fluidos costuma ser muito pequeno, mas no ajuste usa-se 1e9 ou 1.0 como chute seguro
                         double[] otimizados = fitter.fit(series.getXValues(), series.getYValues(), bigDelta, series.getYValues()[0], 1.0);
 
                         javafx.application.Platform.runLater(() -> {
-                            // O coeficiente é pequeno, então formatamos em notação científica (%e)
                             statusLabel.setText(String.format("Difusão Concluída!\nCoef. D = %.4e", otimizados[1]));
                             plotFitResult(series.getXValues(), series.getYValues(), otimizados);
                             btnProcess.setDisable(false);
@@ -184,7 +177,7 @@ public class AppUI extends Application {
                         ex.printStackTrace();
                     });
                 }
-            }).start(); // Dá a ordem de arranque à Thread de background
+            }).start();
         });
 
         // 3. Controlos de Zoom do Gráfico
@@ -255,9 +248,9 @@ public class AppUI extends Application {
 
         controlPanel.getChildren().addAll(
                 btnLoad, statusLabel,
-                lblTipo, comboType,      // <-- O seletor entra aqui!
+                lblTipo, comboType,
                 lblZoom, hboxX, hboxY, hboxZoomBtns,
-                new Label(""),           // Espaçador
+                new Label(""),
                 btnProcess
         );
 
@@ -283,12 +276,9 @@ public class AppUI extends Application {
         double[] timeAxis = signal.timeAxis();
         double[] amplitudes = signal.channel(0);
 
-        // --- Lógica de decimação para evitar travamento do JavaFX ---
         int totalPoints = amplitudes.length;
-        int maxPointsToPlot = 4000; // Limite seguro para o JavaFX desenhar rapidamente
+        int maxPointsToPlot = 4000;
 
-        // Calcula o salto (step). Se tiver menos de 4000 pontos, o step é 1 (plota tudo).
-        // Se tiver 400.000 pontos, o step será 100 (plota 1 a cada 100 pontos).
         int step = Math.max(1, totalPoints / maxPointsToPlot);
 
         for (int i = 0; i < totalPoints; i += step) {
@@ -331,7 +321,6 @@ public class AppUI extends Application {
         double maxX = x[x.length - 1];
         double stepLine = (maxX - minX) / 200.0;
 
-        // Se for Difusão, precisamos do Delta grande (bigDelta), normalmente no parâmetro 'tau'
         double bigDelta = 0.0;
         if (currentExperiment != null && params.length == 2) {
             bigDelta = currentExperiment.getParameters().preAcquisition().getDouble("tau", 0.05);

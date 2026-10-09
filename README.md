@@ -89,9 +89,21 @@ roteiro.
 mvn compile
 mvn test          # roda os testes em src/test/
 
+PARA OBTER APENAS OS NÚMEROS:
 # com um par exp.json + exp.bin real:
 java -cp target/classes br.edu.nmr.Main caminho/para/exp
+
+PARA RODAR A INTERFACE GRÁFICA: 
+Execute a classe AppUILauncher, dentro do pacote ui.
+Em seguida, selecione o arquivo .json que contém os dados do experimento T1, T2 ou difusão fornecido na pasta "dados" dentro da raiz do projeto. 
+
+Após iniciar, verifique o tipo de dado escolhido e selecione o tipo correto em "Tipo de ensaio"z antes de clicar em "processar em lote"
+
+Feito os passos da forma correta, o gráfico deve aparecer normalmente. 
+
+Se desejar, altere os limites de visualização do gráfico utilizando as caixas de texto em "Controles de Zoom (eixo)"
 ```
+
 
 ## Próximos passos
 

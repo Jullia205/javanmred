@@ -28,7 +28,6 @@ public final class BinarySignalReader {
     private BinarySignalReader() {
     }
 
-    /** Lê o arquivo binário inteiro como um array de double, assumindo little-endian. */
     public static double[] readFloat64(Path path) {
         return readFloat64(path, ByteOrder.LITTLE_ENDIAN);
     }

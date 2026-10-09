@@ -1,6 +1,5 @@
 package br.edu.nmr.model;
 
-import java.sql.Time;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +42,6 @@ public final class Experiment {
         return scans.get(index);
     }
 
-    /** Nome/base do arquivo de origem — útil em mensagens de log e de erro. */
     public String sourceName() {
         return sourceName;
     }

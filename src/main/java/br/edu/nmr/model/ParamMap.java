@@ -35,7 +35,6 @@ public final class ParamMap {
         return Collections.unmodifiableMap(values);
     }
 
-    // ---- getters obrigatórios (lançam exceção se ausente) -----------------
 
     public double requireDouble(String key) {
         requireKey(key);
@@ -52,7 +51,6 @@ public final class ParamMap {
         return String.valueOf(values.get(key));
     }
 
-    // ---- getters com valor padrão (idioma dict.get(key, default)) --------
 
     public double getDouble(String key, double defaultValue) {
         if (!has(key)) return defaultValue;
@@ -76,7 +74,6 @@ public final class ParamMap {
         return Boolean.parseBoolean(String.valueOf(v));
     }
 
-    // ---- helpers internos ---------------------------------------------
 
     private void requireKey(String key) {
         if (!has(key)) {

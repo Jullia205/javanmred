@@ -20,15 +20,9 @@ public class AnalysisPipeline {
         this.reader = new ExperimentReader();
     }
 
-    /**
-     * Executa o fluxo completo para um único ficheiro/scan (Etapas 7 a 10).
-     *
-     * @param dataFile O arquivo base do experimento (ex: um File apontando para "amostra1" ou "amostra1.json")
-     */
     public double processSingleScan(File dataFile) throws Exception {
 
         // 1. Leitura (Etapa 7 - Módulo io existente)
-        // Usando o metodo 'load' passando o toPath(), exatamente como o Python original faria.
         Experiment exp = reader.load(dataFile.toPath());
 
         TimeSignal rawSignal = exp.getScans().get(0);

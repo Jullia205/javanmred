@@ -24,8 +24,6 @@ public class DiffusionFit {
             obs.add(smallDeltas[i], integrals[i]);
         }
 
-        // 2. Definir a função física y(x) = A * exp(-B * x^2 * (BigDelta - x/3)) e o seu gradiente
-        // Nota: O 'x' aqui representa o pequeno delta (duração do gradiente)
         ParametricUnivariateFunction function = new ParametricUnivariateFunction() {
 
             @Override
@@ -33,7 +31,6 @@ public class DiffusionFit {
                 double a = parameters[0];
                 double b = parameters[1];
 
-                // Cálculo do termo exponencial: exp(-B * x^2 * (Delta - x/3))
                 return a * Math.exp(-b * (x * x) * (bigDelta - x / 3.0));
             }
 
@@ -45,7 +42,6 @@ public class DiffusionFit {
                 double term = (x * x) * (bigDelta - x / 3.0);
                 double expTerm = Math.exp(-b * term);
 
-                // Derivadas parciais relativas a [A, B]
                 return new double[] {
                         expTerm,               // Derivada dY/dA
                         -a * term * expTerm    // Derivada dY/dB

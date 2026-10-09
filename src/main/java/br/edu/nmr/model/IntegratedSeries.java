@@ -1,9 +1,5 @@
 package br.edu.nmr.model;
 
-/**
- * Representa os dados observáveis após a integração dos picos (Etapa 6).
- * Associa o eixo X (parâmetro experimental variado) ao eixo Y (áreas integradas).
- */
 public class IntegratedSeries {
     private final double[] xValues;
     private final double[] yValues;
